@@ -13,6 +13,7 @@ import RegisteredCourseDetail from "./components/RegisteredCourseDetail";
 import RegisterParent from "./pages/RegisterParent";
 import RegisterTutor from "./pages/RegisterTutor";
 import RegisterStudent from "./pages/RegisterStudent";
+import RegisteredStudentDetail from "./components/RegisteredStudentDetail";
 
 /* Import Zoom Components */
 import ScheduleMeeting from "./components/Zoom/ScheduleMeeting";
@@ -43,6 +44,8 @@ const App = () => {
             <Route path="/parent-dashboard" element={<ParentDashboard />} />
             <Route path="/tutor-course/:id" element={<TutorCourseDetail />} />
             <Route path="/registered-course-detail" element={<RegisteredCourseDetail />} />
+            <Route path="/registered-student-detail" element={<RegisteredStudentDetail />} />
+
 
             {/* Zoom Integration */}
             <Route path="/zoom/schedule" element={<ScheduleMeeting />} />
