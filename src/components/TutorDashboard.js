@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import avatarImage from "../Pictures/file.png";
 
 const TutorDashboard = () => {
   const [profile, setProfile] = useState({
-    name: "John Doe",
-    cnic: "1234567890123",
-    contact: "+92-300-1234567",
-    email: "johndoe@example.com",
-    specialty: "Mathematics",
+    name: "Jane Smith",
+    cnic: "9876543210123",
+    contact: "+92-300-9876543",
+    email: "janesmith@example.com",
+    specialty: "Physics",
     profilePic: null,
+    avatar: <img src={avatarImage} alt="Tutor Avatar" className="w-[20vh] h-[20vh]" />, // Avatar added here
   });
   const [courses, setCourses] = useState([]);
   const [showCourseForm, setShowCourseForm] = useState(false);
@@ -34,36 +36,41 @@ const TutorDashboard = () => {
   };
 
   return (
-    <div className="container mx-auto py-10">
-      {/* Tutor Profile Section */}
-      <div className="bg-white p-6 rounded shadow-md mb-6">
-        <div className="flex items-center">
-          <div className="relative cursor-pointer">
-            <img
-              src={profile.profilePic || "https://via.placeholder.com/100"}
-              alt="Tutor Profile"
-              className="rounded-full w-24 h-24 border border-gray-300"
-              onClick={() => document.getElementById("profilePicInput").click()}
-            />
-            <input
-              type="file"
-              id="profilePicInput"
-              className="hidden"
-              onChange={handleProfilePicChange}
-            />
+    <div className="container mx-auto py-10 px-4">
+      {/* Top Section: Tutor Profile */}
+      <div className="bg-gradient-to-r from-blue-500 to-green-400 text-white rounded-lg shadow-lg p-6 mb-10 text-center">
+        <div className="flex flex-col md:flex-row justify-center items-center gap-6">
+          <div className="flex flex-col items-center">
+            <label className="block cursor-pointer">
+              {/* <img
+                src={profile.profilePic || "https://via.placeholder.com/150"}
+                alt="Tutor Profile"
+                className="w-32 h-32 rounded-full border-4 border-white object-cover mx-auto shadow-md"
+                onClick={() => document.getElementById("profilePicInput").click()}
+              /> */}
+              <input
+                id="profilePicInput"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleProfilePicChange}
+              />
+            </label>
           </div>
-          <div className="ml-6">
-            <h2 className="text-2xl font-bold">{profile.name}</h2>
-            <p>CNIC: {profile.cnic}</p>
-            <p>Contact: {profile.contact}</p>
-            <p>Email: {profile.email}</p>
-            <p>Specialty: {profile.specialty}</p>
+          <div>
+            <h3 className="text-4xl font-extrabold mb-2">{profile.name}</h3>
+            <p className="text-xl">CNIC: <span className="font-medium">{profile.cnic}</span></p>
+            <p className="text-xl">Contact: <span className="font-medium">{profile.contact}</span></p>
+            <p className="text-xl">Email: <span className="font-medium">{profile.email}</span></p>
+            <p className="text-xl">Specialty: <span className="font-medium">{profile.specialty}</span></p>
           </div>
+          {/* Avatar */}
+          <div>{profile.avatar}</div>
         </div>
       </div>
 
       {/* Add Course Section */}
-      <div className="mb-6">
+      <div className="mb-10">
         <button
           className="bg-green-500 text-white px-6 py-3 rounded hover:bg-green-600"
           onClick={() => setShowCourseForm(true)}
@@ -142,24 +149,24 @@ const TutorDashboard = () => {
       )}
 
       {/* Added Courses Section */}
-      <div className="mb-6">
+      <div className="mb-10">
         <h3 className="text-2xl font-bold mb-4">Your Courses</h3>
-        {courses.length > 0 ? (
-          <ul className="bg-white p-4 rounded shadow-md">
-            {courses.map((course) => (
-              <li
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {courses.length > 0 ? (
+            courses.map((course) => (
+              <div
                 key={course.id}
-                className="mb-4 p-4 border rounded hover:bg-gray-100 cursor-pointer"
+                className="border p-4 rounded shadow hover:shadow-lg transition-all cursor-pointer"
                 onClick={() => navigate(`/tutor-course/${course.id}`, { state: course })}
               >
-                <h4 className="text-xl font-bold">{course.name}</h4>
+                <h4 className="text-xl font-bold mb-2">{course.name}</h4>
                 <p>Grade: {course.grade}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No courses added yet.</p>
-        )}
+              </div>
+            ))
+          ) : (
+            <p>No courses added yet.</p>
+          )}
+        </div>
       </div>
     </div>
   );
