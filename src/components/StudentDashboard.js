@@ -73,7 +73,27 @@ const StudentDashboard = () => {
         </div>
       </div>
 
-      {/* Available Courses Section */}
+    
+
+      {/* Registered Courses Section */}
+      <div>
+        <h3 className="text-2xl font-bold mb-4">Registered Courses</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {registeredCourses.map((course, index) => (
+            <div
+              key={index}
+              className="border p-4 rounded shadow hover:shadow-lg transition-all cursor-pointer"
+              onClick={() => handleCourseClick(course)}
+            >
+              <h4 className="text-xl font-bold mb-2">{course.name}</h4>
+              <p className="text-gray-600">Grade: {course.grade}</p>
+            </div>
+            
+          ))}
+        </div>
+
+        
+          {/* Available Courses Section */}
       <div className="mb-10">
         <h3 className="text-2xl font-bold mb-4">Available Courses</h3>
         <input
@@ -102,22 +122,6 @@ const StudentDashboard = () => {
           ))}
         </div>
       </div>
-
-      {/* Registered Courses Section */}
-      <div>
-        <h3 className="text-2xl font-bold mb-4">Registered Courses</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {registeredCourses.map((course, index) => (
-            <div
-              key={index}
-              className="border p-4 rounded shadow hover:shadow-lg transition-all cursor-pointer"
-              onClick={() => handleCourseClick(course)}
-            >
-              <h4 className="text-xl font-bold mb-2">{course.name}</h4>
-              <p className="text-gray-600">Grade: {course.grade}</p>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );

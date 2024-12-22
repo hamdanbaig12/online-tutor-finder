@@ -1,34 +1,119 @@
 import React, { useState } from "react";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+// Register chart components
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const RegisteredStudentDetail = () => {
   const [assignments, setAssignments] = useState([]);
-  const [attendance, setAttendance] = useState({});
-  const [studentDetails, setStudentDetails] = useState({
-    name: "John Doe",
-    class: "Mathematics",
-    assignmentMarks: 85,
-    attendancePercentage: 90,
+  const [studentSubmissions, setStudentSubmissions] = useState([]);
+  const [attendance, setAttendance] = useState([]);
+  const [newAttendance, setNewAttendance] = useState({
+    classNumber: "",
+    topic: "",
+    date: "",
+    status: "A", // Default to absent
   });
+
+  const [newAssignment, setNewAssignment] = useState({
+    heading: "",
+    uploadDate: "",
+    endDate: "",
+    file: null,
+  });
+
+  const [gradingData, setGradingData] = useState({
+    fullMarks: "",
+    obtainedMarks: "",
+  });
+
+  const [studentDetails] = useState({
+    assignmentMarks: 85, // Percentage
+    attendancePercentage: 90, // Percentage
+  });
+
+  // Chart data and options
+  const chartData = {
+    labels: ["Assignment Marks", "Attendance Percentage"],
+    datasets: [
+      {
+        label: "Percentage",
+        data: [studentDetails.assignmentMarks, studentDetails.attendancePercentage],
+        backgroundColor: ["#4caf50", "#2196f3"],
+        borderColor: ["#3e8e41", "#1976d2"],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Student Performance",
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 100,
+        ticks: {
+          stepSize: 10,
+        },
+      },
+    },
+  };
 
   // Handle adding an assignment
   const handleAddAssignment = (e) => {
     e.preventDefault();
-    const newAssignment = {
-      heading: e.target.heading.value,
-      uploadDate: e.target.uploadDate.value,
-      endDate: e.target.endDate.value,
-      file: e.target.file.files[0]?.name || "No file uploaded",
-    };
-    setAssignments([...assignments, newAssignment]);
-    e.target.reset();
+    if (
+      newAssignment.heading &&
+      newAssignment.uploadDate &&
+      newAssignment.endDate &&
+      newAssignment.file
+    ) {
+      setAssignments([...assignments, newAssignment]);
+      setNewAssignment({ heading: "", uploadDate: "", endDate: "", file: null });
+    }
   };
 
-  // Handle attendance marking
-  const handleMarkAttendance = (date) => {
-    setAttendance((prev) => ({
-      ...prev,
-      [date]: !prev[date], // Toggle attendance
-    }));
+  // Handle student assignment grading
+  const handleGradeAssignment = (index, e) => {
+    e.preventDefault();
+    const updatedSubmissions = [...studentSubmissions];
+    updatedSubmissions[index].grading = {
+      fullMarks: gradingData.fullMarks,
+      obtainedMarks: gradingData.obtainedMarks,
+    };
+    setStudentSubmissions(updatedSubmissions);
+    setGradingData({ fullMarks: "", obtainedMarks: "" });
+  };
+
+  // Handle adding a new attendance record
+  const handleAddAttendance = (e) => {
+    e.preventDefault();
+    if (
+      newAttendance.classNumber &&
+      newAttendance.topic &&
+      newAttendance.date
+    ) {
+      setAttendance([...attendance, newAttendance]);
+      setNewAttendance({ classNumber: "", topic: "", date: "", status: "A" });
+    }
   };
 
   return (
@@ -50,7 +135,10 @@ const RegisteredStudentDetail = () => {
             <label className="block font-medium">Assignment Heading</label>
             <input
               type="text"
-              name="heading"
+              value={newAssignment.heading}
+              onChange={(e) =>
+                setNewAssignment({ ...newAssignment, heading: e.target.value })
+              }
               required
               className="w-full p-2 border rounded"
             />
@@ -60,7 +148,13 @@ const RegisteredStudentDetail = () => {
               <label className="block font-medium">Upload Date</label>
               <input
                 type="date"
-                name="uploadDate"
+                value={newAssignment.uploadDate}
+                onChange={(e) =>
+                  setNewAssignment({
+                    ...newAssignment,
+                    uploadDate: e.target.value,
+                  })
+                }
                 required
                 className="w-full p-2 border rounded"
               />
@@ -69,7 +163,13 @@ const RegisteredStudentDetail = () => {
               <label className="block font-medium">End Date</label>
               <input
                 type="date"
-                name="endDate"
+                value={newAssignment.endDate}
+                onChange={(e) =>
+                  setNewAssignment({
+                    ...newAssignment,
+                    endDate: e.target.value,
+                  })
+                }
                 required
                 className="w-full p-2 border rounded"
               />
@@ -77,7 +177,18 @@ const RegisteredStudentDetail = () => {
           </div>
           <div>
             <label className="block font-medium">Upload Assignment</label>
-            <input type="file" name="file" accept=".docx" className="w-full p-2 border rounded" />
+            <input
+              type="file"
+              onChange={(e) =>
+                setNewAssignment({
+                  ...newAssignment,
+                  file: e.target.files[0]?.name,
+                })
+              }
+              accept=".docx,.pdf,.ppt,.zip"
+              required
+              className="w-full p-2 border rounded"
+            />
           </div>
           <button
             type="submit"
@@ -107,44 +218,139 @@ const RegisteredStudentDetail = () => {
       </section>
 
       {/* Attendance Section */}
-      <section className="bg-gray-50 p-6 rounded-lg shadow-lg">
+      <section className="bg-white p-6 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold mb-4">Mark Attendance</h2>
-        <div className="space-y-4">
-          {["2024-12-01", "2024-12-02", "2024-12-03"].map((date) => (
-            <div key={date} className="flex items-center space-x-4">
-              <span className="font-medium">{date}</span>
-              <button
-                onClick={() => handleMarkAttendance(date)}
-                className={`py-2 px-4 rounded ${
-                  attendance[date]
-                    ? "bg-green-600 text-white"
-                    : "bg-red-600 text-white"
-                }`}
-              >
-                {attendance[date] ? "Present" : "Absent"}
-              </button>
+        <form onSubmit={handleAddAttendance} className="space-y-4">
+          <div className="flex space-x-4">
+            <div>
+              <label className="block font-medium">Class Number</label>
+              <input
+                type="text"
+                value={newAttendance.classNumber}
+                onChange={(e) =>
+                  setNewAttendance({
+                    ...newAttendance,
+                    classNumber: e.target.value,
+                  })
+                }
+                required
+                className="w-full p-2 border rounded"
+              />
             </div>
-          ))}
+            <div>
+              <label className="block font-medium">Topic</label>
+              <input
+                type="text"
+                value={newAttendance.topic}
+                onChange={(e) =>
+                  setNewAttendance({
+                    ...newAttendance,
+                    topic: e.target.value,
+                  })
+                }
+                required
+                className="w-full p-2 border rounded"
+              />
+            </div>
+            <div>
+              <label className="block font-medium">Date</label>
+              <input
+                type="date"
+                value={newAttendance.date}
+                onChange={(e) =>
+                  setNewAttendance({
+                    ...newAttendance,
+                    date: e.target.value,
+                  })
+                }
+                required
+                className="w-full p-2 border rounded"
+              />
+            </div>
+            <div>
+              <label className="block font-medium">Status</label>
+              <div className="flex space-x-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="attendanceStatus"
+                    value="P"
+                    checked={newAttendance.status === "P"}
+                    onChange={(e) =>
+                      setNewAttendance({
+                        ...newAttendance,
+                        status: e.target.value,
+                      })
+                    }
+                    className="mr-2"
+                  />
+                  Present (P)
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="attendanceStatus"
+                    value="A"
+                    checked={newAttendance.status === "A"}
+                    onChange={(e) =>
+                      setNewAttendance({
+                        ...newAttendance,
+                        status: e.target.value,
+                      })
+                    }
+                    className="mr-2"
+                  />
+                  Absent (A)
+                </label>
+              </div>
+            </div>
+          </div>
+          <button
+            type="submit"
+            className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
+          >
+            Add Attendance
+          </button>
+        </form>
+
+        {/* Display Attendance Records */}
+        <div className="mt-6">
+          <h3 className="text-xl font-bold mb-4">Attendance Records</h3>
+          {attendance.length > 0 ? (
+            <table className="table-auto w-full border-collapse border">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="border px-4 py-2">Class Number</th>
+                  <th className="border px-4 py-2">Topic</th>
+                  <th className="border px-4 py-2">Date</th>
+                  <th className="border px-4 py-2">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attendance.map((record, index) => (
+                  <tr key={index}>
+                    <td className="border px-4 py-2">{record.classNumber}</td>
+                    <td className="border px-4 py-2">{record.topic}</td>
+                    <td className="border px-4 py-2">{record.date}</td>
+                    <td className="border px-4 py-2">
+                      {record.status === "P" ? "Present" : "Absent"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No attendance records added yet.</p>
+          )}
         </div>
       </section>
 
-      {/* Student Details Section */}
-      <section className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold mb-4">Student Details</h2>
-        <p>
-          <span className="font-medium">Name:</span> {studentDetails.name}
-        </p>
-        <p>
-          <span className="font-medium">Class:</span> {studentDetails.class}
-        </p>
-        <p>
-          <span className="font-medium">Assignment Marks:</span>{" "}
-          {studentDetails.assignmentMarks}%
-        </p>
-        <p>
-          <span className="font-medium">Attendance Percentage:</span>{" "}
-          {studentDetails.attendancePercentage}%
-        </p>
+      {/* Student Performance Section */}
+      <section className="bg-gray-100 p-6 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-bold mb-4">Student Performance</h2>
+        <div className="h-96">
+          <Bar data={chartData} options={chartOptions} />
+        </div>
       </section>
     </div>
   );
