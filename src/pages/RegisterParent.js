@@ -12,8 +12,8 @@ const RegisterParent = () => {
 
   return (
     <div className="container mx-auto p-8 bg-white rounded-lg shadow-md max-w-screen-md">
-      <h1 className="text-3xl font-bold text-center mb-6 text-green-700">YourEvent</h1>
-      <p className="text-center text-gray-600 mb-8">Online Registration</p>
+      <h1 className="text-3xl font-bold text-center mb-6 text-green-700">Parent Registration</h1>
+      {/* <p className="text-center text-gray-600 mb-8">Parent Registration</p> */}
       <form className="grid grid-cols-2 gap-x-6 gap-y-4" onSubmit={handleSubmit(onSubmit)}>
         {/* Name */}
         <div>
