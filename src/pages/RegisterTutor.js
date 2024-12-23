@@ -1,18 +1,45 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const RegisterTutor = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, formState: { errors }, watch } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-    alert("Tutor registered successfully!");
+  // Watching the password field to ensure it matches the confirmPassword field
+  const password = watch('password', '');
+
+  // Function to handle form submission
+  const onSubmit = async (data) => {
+    try {
+      // Manually adding the role as 'teacher'
+      data.role = 'teacher';
+
+      // Send form data to the server using fetch
+      const response = await fetch('http://127.0.0.1:8000/user/signup/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success('Tutor registered successfully!');
+        reset();
+      } else {
+        alert(result.message || 'Error registering tutor!');
+      }
+    } catch (error) {
+      toast.error(`Registration failed: ${error.message || 'Unknown error'}`);
+    }
   };
 
   return (
     <div className="container mx-auto p-8 bg-white rounded-lg shadow-md max-w-screen-md">
       <h1 className="text-3xl font-bold text-center mb-6 text-blue-600">Register as Tutor</h1>
-      {/* <p className="text-center text-gray-600 mb-8">Tutor Registration Form</p> */}
       <form className="grid grid-cols-2 gap-x-6 gap-y-4" onSubmit={handleSubmit(onSubmit)}>
         {/* Name */}
         <div>
@@ -25,6 +52,7 @@ const RegisterTutor = () => {
           />
           {errors.name && <span className="text-red-500 text-sm">{errors.name.message}</span>}
         </div>
+
         {/* Username */}
         <div>
           <label className="block text-gray-600 text-sm font-medium mb-1">Username</label>
@@ -36,6 +64,7 @@ const RegisterTutor = () => {
           />
           {errors.username && <span className="text-red-500 text-sm">{errors.username.message}</span>}
         </div>
+
         {/* CNIC */}
         <div>
           <label className="block text-gray-600 text-sm font-medium mb-1">CNIC</label>
@@ -50,6 +79,7 @@ const RegisterTutor = () => {
           />
           {errors.cnic && <span className="text-red-500 text-sm">{errors.cnic.message}</span>}
         </div>
+
         {/* Course Specialty */}
         <div>
           <label className="block text-gray-600 text-sm font-medium mb-1">Course Specialty</label>
@@ -61,6 +91,22 @@ const RegisterTutor = () => {
           />
           {errors.courseSpecialty && <span className="text-red-500 text-sm">{errors.courseSpecialty.message}</span>}
         </div>
+
+        {/* Contact Number */}
+        <div>
+          <label className="block text-gray-600 text-sm font-medium mb-1">Contact Number</label>
+          <input
+            type="text"
+            {...register("contact", {
+              required: "Contact number is required",
+              pattern: { value: /^\d{10}$/, message: "Must be 10 digits" },
+            })}
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
+            placeholder="Contact Number"
+          />
+          {errors.contact && <span className="text-red-500 text-sm">{errors.contact.message}</span>}
+        </div>
+
         {/* Gender */}
         <div>
           <label className="block text-gray-600 text-sm font-medium mb-1">Gender</label>
@@ -75,6 +121,7 @@ const RegisterTutor = () => {
           </select>
           {errors.gender && <span className="text-red-500 text-sm">{errors.gender.message}</span>}
         </div>
+
         {/* Email Address */}
         <div>
           <label className="block text-gray-600 text-sm font-medium mb-1">Email</label>
@@ -86,6 +133,7 @@ const RegisterTutor = () => {
           />
           {errors.email && <span className="text-red-500 text-sm">{errors.email.message}</span>}
         </div>
+
         {/* Password */}
         <div>
           <label className="block text-gray-600 text-sm font-medium mb-1">Password</label>
@@ -97,17 +145,22 @@ const RegisterTutor = () => {
           />
           {errors.password && <span className="text-red-500 text-sm">{errors.password.message}</span>}
         </div>
+
         {/* Confirm Password */}
         <div>
           <label className="block text-gray-600 text-sm font-medium mb-1">Confirm Password</label>
           <input
             type="password"
-            {...register("confirmPassword", { required: "Confirm password is required" })}
+            {...register("confirmPassword", {
+              required: "Confirm password is required",
+              validate: value => value === password || "Passwords don't match"
+            })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
             placeholder="Confirm Password"
           />
           {errors.confirmPassword && <span className="text-red-500 text-sm">{errors.confirmPassword.message}</span>}
         </div>
+
         {/* Submit Button */}
         <div className="col-span-2 text-center mt-4">
           <button

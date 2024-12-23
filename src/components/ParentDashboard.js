@@ -1,12 +1,31 @@
-import React from "react";
+import React, { use, useEffect, useState } from "react";
 
 const ParentDashboard = () => {
-  const attendance = 90; // Example attendance value
-  const assignmentMarks = [
-    { name: "Math Assignment 1", marks: 85 },
-    { name: "Science Assignment 2", marks: 90 },
-    { name: "History Assignment 3", marks: 78 },
-  ];
+  // Retrieve data from sessionStorage
+  const parentName = sessionStorage.getItem("parentName");
+  const userName = sessionStorage.getItem("username");
+  const parentCNIC = sessionStorage.getItem("parentCNIC");
+  const childName = sessionStorage.getItem("childName");
+  const grade = sessionStorage.getItem("grade");
+  const attendance = sessionStorage.getItem("attendance");
+  const assignmentMarks = sessionStorage.getItem("assignmentMarks");
+  const result = JSON.parse(sessionStorage.getItem('result'));
+
+  // Function to safely parse JSON or return null if undefined or invalid
+  const parseJSON = (data) => {
+    try {
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  useEffect(() => {
+
+  }, []);
+
+  // Safely parse assignmentMarks
+  const parsedAssignmentMarks = parseJSON(assignmentMarks);
 
   const getAttendanceColor = (value) => {
     if (value >= 75) return "bg-green-500"; // Green for high attendance
@@ -23,12 +42,12 @@ const ParentDashboard = () => {
 
       {/* Parent Details */}
       <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-        <h3 className="text-2xl font-bold mb-4 text-gray-800">Parent Details</h3>
+        <h3 className="text-2xl font-bold mb/-4 text-gray-800">Parent Details</h3>
         <p className="text-lg">
-          <span className="font-semibold">Name:</span> Jane Doe
+          <span className="font-semibold">Name:</span> {result.username || "Not available"}
         </p>
         <p className="text-lg">
-          <span className="font-semibold">CNIC:</span> 9876543210987
+          <span className="font-semibold">CNIC:</span> {result.cnic || "Not available"}
         </p>
       </div>
 
@@ -36,10 +55,10 @@ const ParentDashboard = () => {
       <div className="bg-white p-6 rounded-lg shadow-lg">
         <h3 className="text-2xl font-bold mb-4 text-gray-800">Child’s Details</h3>
         <p className="text-lg">
-          <span className="font-semibold">Name:</span> Jack Doe
+          <span className="font-semibold">Name:</span> {childName || "Not available"}
         </p>
         <p className="text-lg">
-          <span className="font-semibold">Grade:</span> 10th
+          <span className="font-semibold">Grade:</span> {grade || "Not available"}
         </p>
 
         {/* Attendance Section */}
@@ -47,12 +66,12 @@ const ParentDashboard = () => {
           <h4 className="text-xl font-semibold mb-2 text-gray-800">Attendance</h4>
           <div className="relative w-full h-6 rounded-lg bg-gray-300 overflow-hidden shadow-inner">
             <div
-              className={`absolute h-full ${getAttendanceColor(attendance)}`}
-              style={{ width: `${attendance}%` }}
+              className={`absolute h-full ${getAttendanceColor(attendance ? attendance : 0)}`}
+              style={{ width: `${attendance ? attendance : 0}%` }}
             ></div>
           </div>
           <p className="text-center mt-2 text-lg">
-            {attendance}% attendance
+            {attendance ? `${attendance}% attendance` : "No attendance data"}
           </p>
         </div>
 
@@ -60,7 +79,7 @@ const ParentDashboard = () => {
         <div className="mt-6">
           <h4 className="text-xl font-semibold mb-2 text-gray-800">Assignments</h4>
           <p className="text-lg">
-            <span className="font-semibold">Status:</span> 2 pending
+            <span className="font-semibold">Status:</span> {parsedAssignmentMarks ? parsedAssignmentMarks.length : 0} pending
           </p>
         </div>
       </div>
@@ -68,17 +87,23 @@ const ParentDashboard = () => {
       {/* Assignment Marks Section */}
       <div className="bg-white p-6 rounded-lg shadow-lg mt-8">
         <h3 className="text-2xl font-bold mb-4 text-gray-800">Assignment Marks</h3>
-        <ul>
-          {assignmentMarks.map((assignment, index) => (
-            <li
-              key={index}
-              className="flex justify-between items-center p-4 border-b last:border-b-0"
-            >
-              <span className="text-lg font-medium">{assignment.name}</span>
-              <span className="text-lg font-semibold text-blue-500">{assignment.marks} / 100</span>
-            </li>
-          ))}
-        </ul>
+        {parsedAssignmentMarks === null ? (
+          <p className="text-lg text-center text-gray-500">No assignment available</p>
+        ) : parsedAssignmentMarks.length === 0 ? (
+          <p className="text-lg text-center text-gray-500">No assignments marked yet</p>
+        ) : (
+          <ul>
+            {parsedAssignmentMarks.map((assignment, index) => (
+              <li
+                key={index}
+                className="flex justify-between items-center p-4 border-b last:border-b-0"
+              >
+                <span className="text-lg font-medium">{assignment.name}</span>
+                <span className="text-lg font-semibold text-blue-500">{assignment.marks} / 100</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

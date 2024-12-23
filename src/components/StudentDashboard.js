@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import avatarImage from "../Pictures/file.png";
 
+const result = JSON.parse(sessionStorage.getItem('result'));
+
 const StudentDashboard = () => {
   const [registeredCourses, setRegisteredCourses] = useState([
     { id: 101, name: "Biology 201", grade: "10th", description: "Advanced Biology for high school." },
@@ -72,9 +74,9 @@ const StudentDashboard = () => {
             </label>
           </div>
           <div>
-            <h3 className="text-4xl font-extrabold mb-2">{student.name}</h3>
-            <p className="text-xl">Father's Name: <span className="font-medium">{student.fatherName}</span></p>
-            <p className="text-xl">Contact: <span className="font-medium">{student.contact}</span></p>
+            <h3 className="text-4xl font-extrabold mb-2">{result.username}</h3>
+            <p className="text-xl">Email: <span className="font-medium">{result.email}</span></p>
+            <p className="text-xl">Contact: <span className="font-medium">{result.contact}</span></p>
           </div>
           <div>{student.avatar}</div>
         </div>

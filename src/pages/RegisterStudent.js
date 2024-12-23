@@ -1,25 +1,56 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const RegisterStudent = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-    alert("Student registered successfully!");
+  const onSubmit = async (data) => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/user/signup/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: data.username,
+          password: data.password,
+          email: data.email,
+          role: 'student', // Role is fixed to 'student'
+          contact: data.phone,
+          cnic: data.cnic,
+          grade: data.grade || '', // Optional field
+          gender: data.gender,
+          father: data.father || '', // Optional field
+          father_cnic: data.father_cnic || '', // Optional field
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        toast.success('Student registered successfully!');
+        reset(); // Clear the form after successful submission
+      } else {
+        const error = await response.json();
+        toast.error(`Registration failed: ${error.message || 'Unknown error'}`);
+      }
+    } catch (err) {
+      toast.error(`Registration failed: ${err.message}`);
+    }
   };
 
   return (
     <div className="container mx-auto p-8 bg-white rounded-lg shadow-md max-w-screen-md">
-      <h1 className="text-3xl font-bold text-center mb-6 text-blue-600">Register as Student</h1>
-      {/* <p className="text-center text-gray-600 mb-8">Student Registration Form</p> */}
+      <ToastContainer />
+      <h1 className="text-3xl font-bold text-center mb-6 text-blue-600">Student Registration</h1>
       <form className="grid grid-cols-2 gap-x-6 gap-y-4" onSubmit={handleSubmit(onSubmit)}>
         {/* Name */}
         <div>
           <label className="block text-gray-600 text-sm font-medium mb-1">Name</label>
           <input
             type="text"
-            {...register("name", { required: "Name is required" })}
+            {...register('name', { required: 'Name is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
             placeholder="Full Name"
           />
@@ -30,43 +61,43 @@ const RegisterStudent = () => {
           <label className="block text-gray-600 text-sm font-medium mb-1">Username</label>
           <input
             type="text"
-            {...register("username", { required: "Username is required" })}
+            {...register('username', { required: 'Username is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
             placeholder="Username"
           />
           {errors.username && <span className="text-red-500 text-sm">{errors.username.message}</span>}
         </div>
-        {/* Father's Name */}
+        {/* Father’s Name */}
         <div>
-          <label className="block text-gray-600 text-sm font-medium mb-1">Father's Name</label>
+          <label className="block text-gray-600 text-sm font-medium mb-1">Father’s Name</label>
           <input
             type="text"
-            {...register("fatherName", { required: "Father's name is required" })}
+            {...register('father', { required: 'Father’s name is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
-            placeholder="Father's Name"
+            placeholder="Father’s Name"
           />
-          {errors.fatherName && <span className="text-red-500 text-sm">{errors.fatherName.message}</span>}
+          {errors.father && <span className="text-red-500 text-sm">{errors.father.message}</span>}
         </div>
         {/* Father's CNIC */}
         <div>
-          <label className="block text-gray-600 text-sm font-medium mb-1">Father's CNIC</label>
+          <label className="block text-gray-600 text-sm font-medium mb-1">Father’s CNIC</label>
           <input
             type="text"
-            {...register("fatherCnic", {
-              required: "Father's CNIC is required",
-              pattern: { value: /^\d{13}$/, message: "Must be 13 digits" },
+            {...register('father_cnic', {
+              required: 'Father’s CNIC is required',
+              pattern: { value: /^\d{13}$/, message: 'Must be 13 digits' },
             })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
-            placeholder="Father's CNIC"
+            placeholder="Father’s CNIC"
           />
-          {errors.fatherCnic && <span className="text-red-500 text-sm">{errors.fatherCnic.message}</span>}
+          {errors.father_cnic && <span className="text-red-500 text-sm">{errors.father_cnic.message}</span>}
         </div>
         {/* Phone Number */}
         <div>
           <label className="block text-gray-600 text-sm font-medium mb-1">Phone Number</label>
           <input
             type="text"
-            {...register("phone", { required: "Phone number is required" })}
+            {...register('phone', { required: 'Phone number is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
             placeholder="Phone Number"
           />
@@ -77,7 +108,7 @@ const RegisterStudent = () => {
           <label className="block text-gray-600 text-sm font-medium mb-1">Grade</label>
           <input
             type="text"
-            {...register("grade", { required: "Grade is required" })}
+            {...register('grade', { required: 'Grade is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
             placeholder="Grade"
           />
@@ -87,7 +118,7 @@ const RegisterStudent = () => {
         <div>
           <label className="block text-gray-600 text-sm font-medium mb-1">Gender</label>
           <select
-            {...register("gender", { required: "Gender is required" })}
+            {...register('gender', { required: 'Gender is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
           >
             <option value="">Select Gender</option>
@@ -102,7 +133,7 @@ const RegisterStudent = () => {
           <label className="block text-gray-600 text-sm font-medium mb-1">Email</label>
           <input
             type="email"
-            {...register("email", { required: "Email is required" })}
+            {...register('email', { required: 'Email is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
             placeholder="Email Address"
           />
@@ -113,7 +144,7 @@ const RegisterStudent = () => {
           <label className="block text-gray-600 text-sm font-medium mb-1">Password</label>
           <input
             type="password"
-            {...register("password", { required: "Password is required" })}
+            {...register('password', { required: 'Password is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
             placeholder="Password"
           />
@@ -124,7 +155,7 @@ const RegisterStudent = () => {
           <label className="block text-gray-600 text-sm font-medium mb-1">Confirm Password</label>
           <input
             type="password"
-            {...register("confirmPassword", { required: "Confirm password is required" })}
+            {...register('confirmPassword', { required: 'Confirm password is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
             placeholder="Confirm Password"
           />

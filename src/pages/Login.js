@@ -1,13 +1,67 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Importing useNavigate for route navigation
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("tutor"); // Default role is 'tutor'
+  const [role, setRole] = useState("parent"); // Default role is 'parent'
+  const navigate = useNavigate(); // Hook for navigating to different routes
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login submitted with:", { email, password, role });
+
+    // Create the login data object
+    const loginData = {
+      email,
+      password,
+      role,
+    };
+
+    try {
+      // Send login request to the backend
+      const response = await fetch("http://127.0.0.1:8000/user/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(loginData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Check if the role of the email from the response matches the selected role
+        if (result.role === role) {
+          console.log('result: ', result);
+          // Save user details in session storage
+          sessionStorage.setItem("result", JSON.stringify(result));
+          sessionStorage.setItem("father", result.parentName);
+          sessionStorage.setItem("parentCNIC", result.parentCNIC);
+          sessionStorage.setItem("childName", result.childName);
+          sessionStorage.setItem("grade", result.grade);
+          sessionStorage.setItem("attendance", result.attendance);
+          sessionStorage.setItem("assignmentMarks", JSON.stringify(result.assignmentMarks));
+
+          // Navigate to the corresponding route based on the role
+          if (role === "teacher") {
+            navigate("/tutor-dashboard"); // Redirect to tutor dashboard
+          } else if (role === "student") {
+            navigate("/student-dashboard"); // Redirect to student dashboard
+          } else if (role === "parent") {
+            navigate("/parent-dashboard"); // Redirect to parent dashboard
+          }
+        } else {
+          
+          console.log('role: ', role);
+          alert("The role you selected does not match the account's role.");
+        }
+      } else {
+        alert(result.message || "Login failed! Please check your credentials.");
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      alert("Error during login!");
+    }
   };
 
   return (
@@ -23,7 +77,7 @@ const Login = () => {
               value={role}
               onChange={(e) => setRole(e.target.value)}
             >
-              <option value="tutor">Tutor</option>
+              <option value="teacher">Teacher</option>
               <option value="parent">Parent</option>
               <option value="student">Student</option>
             </select>

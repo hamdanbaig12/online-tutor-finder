@@ -9,7 +9,6 @@ const TutorCourseDetail = () => {
 
   const handleSave = () => {
     console.log("Updated Course Data:", updatedCourse);
-    alert("Course updated successfully!");
     setIsEditing(false);
   };
 
