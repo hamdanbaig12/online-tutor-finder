@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import avatarImage from "../Pictures/file.png";
 
@@ -9,9 +9,9 @@ const StudentDashboard = () => {
     { id: 103, name: "Physics 303", grade: "12th", description: "Deep dive into Physics concepts." },
   ]);
 
-  const [availableCourses] = useState([
-    { id: 1, name: "Science 101", grade: "9th", description: "Learn the basics of Science." },
-    { id: 2, name: "Mathematics 102", grade: "10th", description: "Master advanced math skills." },
+  const [availableCourses, setAvailableCourses] = useState([
+    // { id: 1, name: "Science 101", grade: "9th", description: "Learn the basics of Science." },
+    // { id: 2, name: "Mathematics 102", grade: "10th", description: "Master advanced math skills." },
   ]);
   const [searchQuery, setSearchQuery] = useState("");
   const student = {
@@ -41,6 +41,13 @@ const StudentDashboard = () => {
   const filteredCourses = availableCourses.filter((course) =>
     course.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  useEffect(() => {
+    setAvailableCourses([
+      { id: 1, name: "Science 101", grade: "9th", description: "Learn the basics of Science." },
+      { id: 2, name: "Mathematics 102", grade: "10th", description: "Master advanced math skills." }
+    ])
+  }, []);
 
   return (
     <div className="container mx-auto py-10 px-4">

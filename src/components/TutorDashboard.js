@@ -10,9 +10,16 @@ const TutorDashboard = () => {
     email: "janesmith@example.com",
     specialty: "Physics",
     profilePic: null,
-    avatar: <img src={avatarImage} alt="Tutor Avatar" className="w-[20vh] h-[20vh]" />, // Avatar added here
+    avatar: <img src={avatarImage} alt="Tutor Avatar" className="w-[20vh] h-[20vh]" />,
   });
+
   const [courses, setCourses] = useState([]);
+  const [students, setStudents] = useState([
+    { id: 1, name: "John Doe", grade: "10th", contact: "+92-300-1112233", email: "johndoe@example.com" },
+    { id: 2, name: "Alice Johnson", grade: "9th", contact: "+92-300-4445566", email: "alicej@example.com" },
+    { id: 3, name: "Bob Smith", grade: "11th", contact: "+92-300-7778899", email: "bobsmith@example.com" },
+  ]);
+
   const [showCourseForm, setShowCourseForm] = useState(false);
   const [newCourse, setNewCourse] = useState({
     name: "",
@@ -35,6 +42,10 @@ const TutorDashboard = () => {
     setShowCourseForm(false);
   };
 
+  const handleStudentClick = (student) => {
+    navigate("/registered-student-detail", { state: student });
+  };
+
   return (
     <div className="container mx-auto py-10 px-4">
       {/* Top Section: Tutor Profile */}
@@ -42,12 +53,6 @@ const TutorDashboard = () => {
         <div className="flex flex-col md:flex-row justify-center items-center gap-6">
           <div className="flex flex-col items-center">
             <label className="block cursor-pointer">
-              {/* <img
-                src={profile.profilePic || "https://via.placeholder.com/150"}
-                alt="Tutor Profile"
-                className="w-32 h-32 rounded-full border-4 border-white object-cover mx-auto shadow-md"
-                onClick={() => document.getElementById("profilePicInput").click()}
-              /> */}
               <input
                 id="profilePicInput"
                 type="file"
@@ -64,7 +69,6 @@ const TutorDashboard = () => {
             <p className="text-xl">Email: <span className="font-medium">{profile.email}</span></p>
             <p className="text-xl">Specialty: <span className="font-medium">{profile.specialty}</span></p>
           </div>
-          {/* Avatar */}
           <div>{profile.avatar}</div>
         </div>
       </div>
@@ -147,6 +151,25 @@ const TutorDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Students Section */}
+      <div className="mb-10">
+        <h3 className="text-2xl font-bold mb-4">Registered Students</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {students.map((student) => (
+            <div
+              key={student.id}
+              className="border p-4 rounded shadow hover:shadow-lg transition-all cursor-pointer"
+              onClick={() => handleStudentClick(student)}
+            >
+              <h4 className="text-xl font-bold mb-2">{student.name}</h4>
+              <p>Grade: {student.grade}</p>
+              <p>Contact: {student.contact}</p>
+              <p>Email: {student.email}</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Added Courses Section */}
       <div className="mb-10">
