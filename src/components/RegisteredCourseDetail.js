@@ -16,12 +16,12 @@ const RegisteredCourseDetail = () => {
     <div className="container mx-auto py-10 space-y-8">
       {/* Course Name Section */}
       <header>
-        <button
+        {/* <button
           className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mb-4"
           onClick={() => navigate(-1)}
         >
-          Back to Dashboard
-        </button>
+          &lt;--
+        </button> */}
         <h2 className="text-4xl font-bold text-blue-600">{course.name}</h2>
         <p className="text-gray-500 text-lg mt-2">Grade: {course.grade}</p>
       </header>

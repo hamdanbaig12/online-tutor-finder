@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -26,8 +26,7 @@ const RegisteredStudentDetail = () => {
 
   const [newAssignment, setNewAssignment] = useState({
     heading: "",
-    uploadDate: "",
-    endDate: "",
+    deadline: "",
     file: null,
   });
 
@@ -35,73 +34,6 @@ const RegisteredStudentDetail = () => {
     fullMarks: "",
     obtainedMarks: "",
   });
-
-  const [studentDetails] = useState({
-    assignmentMarks: 85, // Percentage
-    attendancePercentage: 90, // Percentage
-  });
-
-  // Chart data and options
-  const chartData = {
-    labels: ["Assignment Marks", "Attendance Percentage"],
-    datasets: [
-      {
-        label: "Percentage",
-        data: [studentDetails.assignmentMarks, studentDetails.attendancePercentage],
-        backgroundColor: ["#4caf50", "#2196f3"],
-        borderColor: ["#3e8e41", "#1976d2"],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top",
-      },
-      title: {
-        display: true,
-        text: "Student Performance",
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 100,
-        ticks: {
-          stepSize: 10,
-        },
-      },
-    },
-  };
-
-  // Handle adding an assignment
-  const handleAddAssignment = (e) => {
-    e.preventDefault();
-    if (
-      newAssignment.heading &&
-      newAssignment.uploadDate &&
-      newAssignment.endDate &&
-      newAssignment.file
-    ) {
-      setAssignments([...assignments, newAssignment]);
-      setNewAssignment({ heading: "", uploadDate: "", endDate: "", file: null });
-    }
-  };
-
-  // Handle student assignment grading
-  const handleGradeAssignment = (index, e) => {
-    e.preventDefault();
-    const updatedSubmissions = [...studentSubmissions];
-    updatedSubmissions[index].grading = {
-      fullMarks: gradingData.fullMarks,
-      obtainedMarks: gradingData.obtainedMarks,
-    };
-    setStudentSubmissions(updatedSubmissions);
-    setGradingData({ fullMarks: "", obtainedMarks: "" });
-  };
 
   // Handle adding a new attendance record
   const handleAddAttendance = (e) => {
@@ -115,6 +47,122 @@ const RegisteredStudentDetail = () => {
       setNewAttendance({ classNumber: "", topic: "", date: "", status: "A" });
     }
   };
+
+  const [studentDetails] = useState({
+    assignmentMarks: 85,
+    attendancePercentage: 90,
+  });
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+        labels: {
+          font: {
+            family: "'Poppins', sans-serif",
+            size: 14,
+          },
+          color: "#444",
+        },
+      },
+      title: {
+        display: true,
+        text: "Student Performance",
+        font: {
+          family: "'Poppins', sans-serif",
+          size: 18,
+          weight: "bold",
+        },
+        color: "#333",
+      },
+      tooltip: {
+        backgroundColor: "rgba(0,0,0,0.8)",
+        titleFont: {
+          family: "'Poppins', sans-serif",
+          size: 14,
+          weight: "bold",
+        },
+        bodyFont: {
+          family: "'Poppins', sans-serif",
+          size: 12,
+        },
+        borderWidth: 1,
+        borderColor: "#ddd",
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          font: {
+            family: "'Poppins', sans-serif",
+          },
+          color: "#666",
+        },
+      },
+      y: {
+        beginAtZero: true,
+        max: 100,
+        ticks: {
+          stepSize: 10,
+          font: {
+            family: "'Poppins', sans-serif",
+          },
+          color: "#666",
+        },
+      },
+    },
+    animation: {
+      duration: 1000,
+      easing: "easeOutBounce",
+    },
+  };
+
+  const chartData = {
+    labels: ["Assignment Marks", "Attendance Percentage"],
+    datasets: [
+      {
+        label: "Percentage",
+        data: [studentDetails.assignmentMarks, studentDetails.attendancePercentage],
+        backgroundColor: (context) => {
+          const ctx = context.chart.ctx;
+          const gradient1 = ctx.createLinearGradient(0, 0, 0, 400);
+          gradient1.addColorStop(0, "#4caf50");
+          gradient1.addColorStop(1, "#a5d6a7");
+
+          const gradient2 = ctx.createLinearGradient(0, 0, 0, 400);
+          gradient2.addColorStop(0, "#2196f3");
+          gradient2.addColorStop(1, "#90caf9");
+
+          return context.dataIndex === 0 ? gradient1 : gradient2;
+        },
+        borderColor: (context) =>
+          context.dataIndex === 0 ? "#388e3c" : "#1976d2",
+        borderWidth: 2,
+        hoverBackgroundColor: (context) =>
+          context.dataIndex === 0 ? "#81c784" : "#64b5f6",
+        hoverBorderColor: (context) =>
+          context.dataIndex === 0 ? "#388e3c" : "#1976d2",
+      },
+    ],
+  };
+
+  const handleAddAssignment = (e) => {
+    e.preventDefault();
+    const currentDate = new Date().toISOString().split("T")[0];
+    if (newAssignment.heading && newAssignment.deadline && newAssignment.file) {
+      if (newAssignment.deadline <= currentDate) {
+        alert("Deadline must be a future date!");
+        return;
+      }
+      setAssignments([...assignments, { ...newAssignment, uploadDate: currentDate }]);
+      setNewAssignment({ heading: "", deadline: "", file: null });
+    }
+  };
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  },[]);
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -143,37 +191,17 @@ const RegisteredStudentDetail = () => {
               className="w-full p-2 border rounded"
             />
           </div>
-          <div className="flex space-x-4">
-            <div>
-              <label className="block font-medium">Upload Date</label>
-              <input
-                type="date"
-                value={newAssignment.uploadDate}
-                onChange={(e) =>
-                  setNewAssignment({
-                    ...newAssignment,
-                    uploadDate: e.target.value,
-                  })
-                }
-                required
-                className="w-full p-2 border rounded"
-              />
-            </div>
-            <div>
-              <label className="block font-medium">End Date</label>
-              <input
-                type="date"
-                value={newAssignment.endDate}
-                onChange={(e) =>
-                  setNewAssignment({
-                    ...newAssignment,
-                    endDate: e.target.value,
-                  })
-                }
-                required
-                className="w-full p-2 border rounded"
-              />
-            </div>
+          <div>
+            <label className="block font-medium">Deadline</label>
+            <input
+              type="date"
+              value={newAssignment.deadline}
+              onChange={(e) =>
+                setNewAssignment({ ...newAssignment, deadline: e.target.value })
+              }
+              required
+              className="w-full p-2 border rounded"
+            />
           </div>
           <div>
             <label className="block font-medium">Upload Assignment</label>
@@ -206,7 +234,7 @@ const RegisteredStudentDetail = () => {
               {assignments.map((assignment, index) => (
                 <li key={index} className="mb-2">
                   <span className="font-medium">{assignment.heading}</span> -{" "}
-                  Uploaded: {assignment.uploadDate}, End Date: {assignment.endDate}, File:{" "}
+                  Uploaded: {assignment.uploadDate}, Deadline: {assignment.deadline}, File:{" "}
                   {assignment.file}
                 </li>
               ))}
