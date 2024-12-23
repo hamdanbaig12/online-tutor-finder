@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import avatarImage from "../Pictures/file.png";
 
+const result = JSON.parse(sessionStorage.getItem('result'));
+
 const TutorDashboard = () => {
   const [profile, setProfile] = useState({
     name: "Jane Smith",
@@ -58,11 +60,11 @@ const TutorDashboard = () => {
             </label>
           </div>
           <div>
-            <h3 className="text-4xl font-extrabold mb-2">{profile.name}</h3>
-            <p className="text-xl">CNIC: <span className="font-medium">{profile.cnic}</span></p>
-            <p className="text-xl">Contact: <span className="font-medium">{profile.contact}</span></p>
-            <p className="text-xl">Email: <span className="font-medium">{profile.email}</span></p>
-            <p className="text-xl">Specialty: <span className="font-medium">{profile.specialty}</span></p>
+            <h3 className="text-4xl font-extrabold mb-2">{result.username}</h3>
+            <p className="text-xl">CNIC: <span className="font-medium">{result.cnic}</span></p>
+            <p className="text-xl">Contact: <span className="font-medium">{result.contact}</span></p>
+            <p className="text-xl">Email: <span className="font-medium">{result.email}</span></p>
+            {/* <p className="text-xl">Specialty: <span className="font-medium">{profile.specialty}</span></p> */}
           </div>
           {/* Avatar */}
           <div>{profile.avatar}</div>
@@ -80,7 +82,7 @@ const TutorDashboard = () => {
       </div>
 
       {showCourseForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div  className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded shadow-md w-full max-w-md relative">
             <button
               className="absolute top-2 right-2 text-red-500 font-bold text-lg"

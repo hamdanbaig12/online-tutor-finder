@@ -1,26 +1,59 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const RegisterParent = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-    toast.success("Parent registered successfully!");
+  const onSubmit = async (data) => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/user/signup/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: data.username,
+          password: data.password,
+          email: data.email,
+          role: 'parent', // Role is fixed to 'parent'
+          contact: data.phone,
+          cnic: data.cnic,
+          specialty: data.specialty || '', // Optional field
+          grade: data.grade || '', // Optional field
+          father: data.father || '', // Optional field
+          father_cnic: data.father_cnic || '', // Optional field
+          gender: data.gender,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        toast.success('Parent registered successfully!');
+        reset(); // Clear the form after successful submission
+      } else {
+        const error = await response.json();
+        toast.error(`Registration failed: ${error.message || 'Unknown error'}`);
+      }
+    } catch (err) {
+      toast.error(`Registration failed: ${err.message}`);
+    }
   };
 
   return (
     <div className="container mx-auto p-8 bg-white rounded-lg shadow-md max-w-screen-md">
+      
+      <ToastContainer />
       <h1 className="text-3xl font-bold text-center mb-6 text-green-700">Parent Registration</h1>
-      {/* <p className="text-center text-gray-600 mb-8">Parent Registration</p> */}
       <form className="grid grid-cols-2 gap-x-6 gap-y-4" onSubmit={handleSubmit(onSubmit)}>
         {/* Name */}
         <div>
           <label className="block text-gray-600 text-sm font-medium mb-1">Name</label>
           <input
             type="text"
-            {...register("name", { required: "Name is required" })}
+            {...register('name', { required: 'Name is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-green-300"
             placeholder="Full Name"
           />
@@ -31,7 +64,7 @@ const RegisterParent = () => {
           <label className="block text-gray-600 text-sm font-medium mb-1">Username</label>
           <input
             type="text"
-            {...register("username", { required: "Username is required" })}
+            {...register('username', { required: 'Username is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-green-300"
             placeholder="Username"
           />
@@ -41,7 +74,7 @@ const RegisterParent = () => {
         <div>
           <label className="block text-gray-600 text-sm font-medium mb-1">Gender</label>
           <select
-            {...register("gender", { required: "Gender is required" })}
+            {...register('gender', { required: 'Gender is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-green-300"
           >
             <option value="">Select Gender</option>
@@ -56,7 +89,7 @@ const RegisterParent = () => {
           <label className="block text-gray-600 text-sm font-medium mb-1">Email</label>
           <input
             type="email"
-            {...register("email", { required: "Email is required" })}
+            {...register('email', { required: 'Email is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-green-300"
             placeholder="Email Address"
           />
@@ -67,7 +100,7 @@ const RegisterParent = () => {
           <label className="block text-gray-600 text-sm font-medium mb-1">Phone Number</label>
           <input
             type="text"
-            {...register("phone", { required: "Phone number is required" })}
+            {...register('phone', { required: 'Phone number is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-green-300"
             placeholder="Phone Number"
           />
@@ -78,9 +111,9 @@ const RegisterParent = () => {
           <label className="block text-gray-600 text-sm font-medium mb-1">CNIC Number</label>
           <input
             type="text"
-            {...register("cnic", {
-              required: "CNIC is required",
-              pattern: { value: /^\d{13}$/, message: "Must be 13 digits" },
+            {...register('cnic', {
+              required: 'CNIC is required',
+              pattern: { value: /^\d{13}$/, message: 'Must be 13 digits' },
             })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-green-300"
             placeholder="CNIC Number"
@@ -92,7 +125,7 @@ const RegisterParent = () => {
           <label className="block text-gray-600 text-sm font-medium mb-1">Password</label>
           <input
             type="password"
-            {...register("password", { required: "Password is required" })}
+            {...register('password', { required: 'Password is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-green-300"
             placeholder="Password"
           />
@@ -103,7 +136,7 @@ const RegisterParent = () => {
           <label className="block text-gray-600 text-sm font-medium mb-1">Confirm Password</label>
           <input
             type="password"
-            {...register("confirmPassword", { required: "Confirm password is required" })}
+            {...register('confirmPassword', { required: 'Confirm password is required' })}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-green-300"
             placeholder="Confirm Password"
           />
